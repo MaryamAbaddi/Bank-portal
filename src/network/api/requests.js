@@ -1,34 +1,26 @@
-import { API_BASE_URL, MOCK_NETWORK_DELAY_MS } from "../config/env";
-import { initialRequests } from "../../constants/mockData";
-
-function delay(value) {
-  return new Promise((resolve) => setTimeout(() => resolve(value), MOCK_NETWORK_DELAY_MS));
-}
+import { apiRequest } from "../http";
 
 export async function fetchRequests() {
-  // const res = await fetch(`${API_BASE_URL}/requests`, { headers: authHeaders() });
-  // return res.json();
-  return delay(initialRequests);
+  // GET /api/bank/requests -> ApiResponse<BankGuaranteeDto[]>. The pending
+  // (pending_bank_review) queue — same shape as mockData's initialRequests.
+  return apiRequest("/bank/requests");
 }
 
 export async function approveRequest(requestId) {
-  // const res = await fetch(`${API_BASE_URL}/requests/${requestId}/approve`, {
-  //   method: "POST",
-  //   headers: authHeaders(),
-  // });
-  // return res.json(); // { guaranteeId, issuedDate }
-  return delay({
-    guaranteeId: `TRV-GT-${Math.floor(90000 + Math.random() * 9000)}`,
-    issuedDate: "July 23, 2026",
-  });
+  // POST /api/guarantees/{applicationCode}/approve -> ApiResponse<BankGuaranteeDto>
+  // "requestId" here is the BankGuaranteeDto.id, i.e. the application code
+  // (TRV-GT-XXXXX) — the row/drawer never dealt in a separate internal id.
+  // Sets status to ISSUED; the owner still has to confirm it before it's
+  // truly active (see the two-stage flow in GuaranteesController).
+  return apiRequest(`/guarantees/${requestId}/approve`, { method: "POST" });
 }
 
 export async function denyRequest(requestId, reason) {
-  // const res = await fetch(`${API_BASE_URL}/requests/${requestId}/deny`, {
-  //   method: "POST",
-  //   headers: { ...authHeaders(), "Content-Type": "application/json" },
-  //   body: JSON.stringify({ reason }),
-  // });
-  // return res.json();
-  return delay({ ok: true });
+  // POST /api/guarantees/{applicationCode}/reject -> ApiResponse<BankGuaranteeDto>
+  // Reason is required server-side (GuaranteeService.RejectByBankAsync
+  // throws if blank) — RequestDrawer already won't call this without one.
+  return apiRequest(`/guarantees/${requestId}/reject`, {
+    method: "POST",
+    body: { reason },
+  });
 }

@@ -1,22 +1,24 @@
 import { createContext, useState, useCallback } from "react";
 import * as authApi from "../network/api/auth";
+import { setToken, clearToken } from "../network/tokenStore";
 
 export const AuthContext = createContext(null);
 
 // Wrap <App /> in <AuthProvider> once, at the top. Any component can then
 // read/update auth state via the useAuth() hook instead of prop-drilling.
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(null);
+  const [token, setTokenState] = useState(null);
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("idle"); // idle | loading | error
   const [error, setError] = useState(null);
 
-  const signIn = useCallback(async (username, password) => {
+  const signIn = useCallback(async (email, password) => {
     setStatus("loading");
     setError(null);
     try {
-      const { token, user } = await authApi.login({ username, password });
-      setToken(token);
+      const { token, user } = await authApi.login({ email, password });
+      setToken(token); // network/tokenStore — lets the plain fetch() modules attach it
+      setTokenState(token);
       setUser(user);
       setStatus("idle");
       return true;
@@ -29,7 +31,8 @@ export function AuthProvider({ children }) {
 
   const signOut = useCallback(async () => {
     await authApi.logout();
-    setToken(null);
+    clearToken();
+    setTokenState(null);
     setUser(null);
   }, []);
 

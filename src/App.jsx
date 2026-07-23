@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useState } from "react";
 import { theme } from "./styles/theme";
 import { AuthProvider } from "./store/AuthContext";
@@ -110,10 +109,4 @@ export default function App() {
       <AuthGate />
     </AuthProvider>
   );
-=======
-import BankPortal from "./bank-portal";
-
-export default function App() {
-  return <BankPortal />;
->>>>>>> 29ab35231da095b808489bc10f4ec73e303d97cd
 }

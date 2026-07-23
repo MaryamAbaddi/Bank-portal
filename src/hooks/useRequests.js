@@ -22,10 +22,14 @@ export function useRequests({ onApprove } = {}) {
 
   const approve = useCallback(
     async (request) => {
-      const { guaranteeId, issuedDate } = await requestsApi.approveRequest(request.id);
+      // approveRequest now returns the full issued guarantee (matches
+      // BankGuaranteeDto exactly — same shape this list already renders),
+      // not just a {guaranteeId, issuedDate} pair, so it can go straight
+      // into the active-guarantees list via onApprove.
+      const issued = await requestsApi.approveRequest(request.id);
       setRequests((prev) => prev.filter((r) => r.id !== request.id));
-      onApprove?.({ ...request, id: guaranteeId, issuedDate });
-      return guaranteeId;
+      onApprove?.(issued);
+      return issued.id;
     },
     [onApprove]
   );

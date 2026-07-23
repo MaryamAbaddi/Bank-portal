@@ -5,12 +5,12 @@ import Button from "../../components/atoms/Button";
 
 export default function LoginScreen() {
   const { signIn, status, error } = useAuth();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await signIn(username, password);
+    await signIn(email, password);
   }
 
   return (
@@ -43,10 +43,10 @@ export default function LoginScreen() {
 
         <form onSubmit={handleSubmit}>
           <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             style={inputStyle}
           />
           <input
